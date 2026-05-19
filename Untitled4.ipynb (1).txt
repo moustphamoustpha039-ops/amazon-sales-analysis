@@ -1,0 +1,302 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "asZMkgBjL9QY",
+        "collapsed": true
+      },
+      "outputs": [],
+      "source": [
+        "import zipfile\n",
+        "import os\n",
+        "\n",
+        "# المسار الصحيح للملف الآن\n",
+        "file_path = '/content/archive.zip'  # ✅ صحيح\n",
+        "\n",
+        "# فك ضغط ملف المبيعات\n",
+        "with zipfile.ZipFile(file_path, 'r') as zip_ref:\n",
+        "    zip_ref.extractall('/content/amazon_project')\n",
+        "\n",
+        "print(\"تم فك الضغط بنجاح!\")\n",
+        "print(\"الملفات المستخرجة داخل مجلد amazon_project هي:\")\n",
+        "print(os.listdir('/content/amazon_project'))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "df = pd.read_csv('/content/amazon_project/amazon.csv')\n",
+        "df.head()"
+      ],
+      "metadata": {
+        "id": "WPo6vt-UbNrB"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# عرض معلومات عن البيانات\n",
+        "print(df.shape)        # عدد الصفوف والأعمدة\n",
+        "print(df.columns)      # أسماء الأعمدة\n",
+        "df.info()              # معلومات تفصيلية"
+      ],
+      "metadata": {
+        "id": "4W8CiHlgbvoi"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.head()\n",
+        "df.shape\n",
+        "df.info()\n",
+        "df.isnull().sum()  # القيم الناقصة"
+      ],
+      "metadata": {
+        "id": "MGW7BYZZdKB7"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# حذف الصفين الناقصين\n",
+        "df.dropna(subset=['rating_count'], inplace=True)\n",
+        "\n",
+        "# تحويل الأسعار من نص إلى أرقام\n",
+        "df['discounted_price'] = df['discounted_price'].str.replace('₹','').str.replace(',','').astype(float)\n",
+        "df['actual_price'] = df['actual_price'].str.replace('₹','').str.replace(',','').astype(float)\n",
+        "df['discount_percentage'] = df['discount_percentage'].str.replace('%','').astype(float)\n",
+        "df['rating'] = pd.to_numeric(df['rating'], errors='coerce')\n",
+        "\n",
+        "print(\"تم التنظيف بنجاح ✅\")\n",
+        "df.head()"
+      ],
+      "metadata": {
+        "id": "3ESJAtZUdnPp"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "# 1. توزيع التقييمات\n",
+        "plt.figure(figsize=(8,4))\n",
+        "df['rating'].hist(color='steelblue')\n",
+        "plt.title('توزيع تقييمات المنتجات')\n",
+        "plt.xlabel('التقييم')\n",
+        "plt.ylabel('عدد المنتجات')\n",
+        "plt.show()\n",
+        "\n",
+        "# 2. أكثر الفئات\n",
+        "plt.figure(figsize=(10,5))\n",
+        "df['category'].str.split('|').str[0].value_counts()[:10].plot(kind='bar', color='coral')\n",
+        "plt.title('أكثر 10 فئات في أمازون')\n",
+        "plt.xticks(rotation=45)\n",
+        "plt.show()\n",
+        "\n",
+        "# 3. العلاقة بين الخصم والتقييم\n",
+        "plt.figure(figsize=(8,4))\n",
+        "plt.scatter(df['discount_percentage'], df['rating'], alpha=0.3)\n",
+        "plt.title('الخصم مقابل التقييم')\n",
+        "plt.xlabel('نسبة الخصم')\n",
+        "plt.ylabel('التقييم')\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "id": "KD-IDZV0fUXX"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "Gp9OhLknf758"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "# 1. Rating Distribution\n",
+        "plt.figure(figsize=(8,4))\n",
+        "df['rating'].hist(color='steelblue')\n",
+        "plt.title('Product Rating Distribution')\n",
+        "plt.xlabel('Rating')\n",
+        "plt.ylabel('Number of Products')\n",
+        "plt.show()\n",
+        "\n",
+        "# 2. Top 10 Categories\n",
+        "plt.figure(figsize=(10,5))\n",
+        "df['category'].str.split('|').str[0].value_counts()[:10].plot(kind='bar', color='coral')\n",
+        "plt.title('Top 10 Categories on Amazon')\n",
+        "plt.xlabel('Category')\n",
+        "plt.ylabel('Count')\n",
+        "plt.xticks(rotation=45)\n",
+        "plt.tight_layout()\n",
+        "plt.show()\n",
+        "\n",
+        "# 3. Discount vs Rating\n",
+        "plt.figure(figsize=(8,4))\n",
+        "plt.scatter(df['discount_percentage'], df['rating'], alpha=0.3, color='green')\n",
+        "plt.title('Discount % vs Rating')\n",
+        "plt.xlabel('Discount Percentage')\n",
+        "plt.ylabel('Rating')\n",
+        "plt.show()\n",
+        "\n",
+        "# 4. Summary\n",
+        "print(\"=== Analysis Summary ===\")\n",
+        "print(f\"Total Products: {len(df)}\")\n",
+        "print(f\"Average Rating: {df['rating'].mean():.2f}\")\n",
+        "print(f\"Average Discount: {df['discount_percentage'].mean():.1f}%\")\n",
+        "print(f\"Max Price: {df['actual_price'].max()}\")\n",
+        "print(f\"Min Price: {df['actual_price'].min()}\")"
+      ],
+      "metadata": {
+        "id": "kckYSkzdf_EA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# @title AI prompt cell\n",
+        "\n",
+        "import ipywidgets as widgets\n",
+        "from IPython.display import display, HTML, Markdown,clear_output\n",
+        "from google.colab import ai\n",
+        "\n",
+        "dropdown = widgets.Dropdown(\n",
+        "    options=[],\n",
+        "    layout={'width': 'auto'}\n",
+        ")\n",
+        "\n",
+        "def update_model_list(new_options):\n",
+        "    dropdown.options = new_options\n",
+        "update_model_list(ai.list_models())\n",
+        "\n",
+        "text_input = widgets.Textarea(\n",
+        "    placeholder='Ask me anything....',\n",
+        "    layout={'width': 'auto', 'height': '100px'},\n",
+        ")\n",
+        "\n",
+        "button = widgets.Button(\n",
+        "    description='Submit Text',\n",
+        "    disabled=False,\n",
+        "    tooltip='Click to submit the text',\n",
+        "    icon='check'\n",
+        ")\n",
+        "\n",
+        "output_area = widgets.Output(\n",
+        "     layout={'width': 'auto', 'max_height': '300px','overflow_y': 'scroll'}\n",
+        ")\n",
+        "\n",
+        "def on_button_clicked(b):\n",
+        "    with output_area:\n",
+        "        output_area.clear_output(wait=False)\n",
+        "        accumulated_content = \"\"\n",
+        "        for new_chunk in ai.generate_text(prompt=text_input.value, model_name=dropdown.value, stream=True):\n",
+        "            if new_chunk is None:\n",
+        "                continue\n",
+        "            accumulated_content += new_chunk\n",
+        "            clear_output(wait=True)\n",
+        "            display(Markdown(accumulated_content))\n",
+        "\n",
+        "button.on_click(on_button_clicked)\n",
+        "vbox = widgets.GridBox([dropdown, text_input, button, output_area])\n",
+        "\n",
+        "display(HTML(\"\"\"\n",
+        "<style>\n",
+        ".widget-dropdown select {\n",
+        "    font-size: 18px;\n",
+        "    font-family: \"Arial\", sans-serif;\n",
+        "}\n",
+        ".widget-textarea textarea {\n",
+        "    font-size: 18px;\n",
+        "    font-family: \"Arial\", sans-serif;\n",
+        "}\n",
+        "</style>\n",
+        "\"\"\"))\n",
+        "display(vbox)\n"
+      ],
+      "metadata": {
+        "cellView": "form",
+        "id": "ku8DfFIid6VY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# حذف widget metadata\n",
+        "import json\n",
+        "\n",
+        "with open('/content/amazon_project/../../../tmp/notebook.ipynb', 'r') as f:\n",
+        "    nb = json.load(f)\n",
+        "\n",
+        "if 'widgets' in nb.get('metadata', {}):\n",
+        "    del nb['metadata']['widgets']\n",
+        "\n",
+        "print(\"تم الإصلاح\")"
+      ],
+      "metadata": {
+        "id": "c5KlUcOzlexa"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "mPoJQ0NBnaSS"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "os.listdir('/content/')"
+      ],
+      "metadata": {
+        "id": "sGUCVlUkaNgP"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
